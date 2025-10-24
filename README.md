@@ -42,18 +42,19 @@ def hits_algorithm(adjacency_matrix, max_iterations=100, tol=1.0e-6):
     authority_scores = np.ones(num_nodes)
     hub_scores = np.ones(num_nodes)
     
+    iterations = 0
+    
     for i in range(max_iterations):
-        # Authority update
-
-             /*WRITE YOUR CODE HERE
+        iterations = i + 1 
         
-        # Hub update
-
-             /*WRITE YOUR CODE HERE
+        new_authority_scores = np.dot(adjacency_matrix.T, hub_scores)
+        new_authority_scores /= np.linalg.norm(new_authority_scores, ord=2)  # Normalizing
         
-        # Check convergence
-
-             /*WRITE YOUR CODE HERE
+        new_hub_scores = np.dot(adjacency_matrix, new_authority_scores)
+        new_hub_scores /= np.linalg.norm(new_hub_scores, ord=2)  
+        
+        authority_diff = np.linalg.norm(new_authority_scores - authority_scores, ord=2)
+        hub_diff = np.linalg.norm(new_hub_scores - hub_scores, ord=2)
         
         if authority_diff < tol and hub_diff < tol:
             break
@@ -61,22 +62,35 @@ def hits_algorithm(adjacency_matrix, max_iterations=100, tol=1.0e-6):
         authority_scores = new_authority_scores
         hub_scores = new_hub_scores
     
-    return authority_scores, hub_scores
+    return authority_scores, hub_scores, iterations
 
-# Example adjacency matrix (replace this with your own data)
-# For simplicity, using a random adjacency matrix
 adj_matrix = np.array([
     [0, 1, 1],
-    [1, 0, 0],
-    [1, 0, 0]
+    [0, 0, 1],
+    [1, 1, 0]
 ])
 
-# Run HITS algorithm
-authority, hub = hits_algorithm(adj_matrix)
+authority, hub, iterations = hits_algorithm(adj_matrix)
+
+print(f"Algorithm converged in {iterations} iterations.")
+print("-" * 30)
+
 for i in range(len(authority)):
     print(f"Node {i}: Authority Score = {authority[i]:.4f}, Hub Score = {hub[i]:.4f}")
 
-# bar chart of authority vs hub scores
+auth_ranking_indices = np.argsort(authority)[::-1] 
+
+print("\nRanking based on Authority Scores:")
+for rank, node_index in enumerate(auth_ranking_indices):
+    
+    print(f"Rank- {rank + 1} Node {node_index}: {authority[node_index]}")
+
+hub_ranking_indices = np.argsort(hub)[::-1]
+
+print("\nRanking based on Hub Scores:")
+for rank, node_index in enumerate(hub_ranking_indices):
+    
+    print(f"Rank- {rank + 1} Node {node_index}: {hub[node_index]}")
 
 nodes = np.arange(len(authority))
 bar_width = 0.35
